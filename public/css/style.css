@@ -1,0 +1,32 @@
+@-webkit-keyframes dot-jump { 0% {top: 0;} 55% {top: 0;} 60% {top: -10px;} 80% {top: 2px;} 90% {top: -1px;} 95% {top: 0;} 100% {top: 0;} }
+@-moz-keyframes dot-jump { 0% {top: 0;} 55% {top: 0;} 60% {top: -10px;} 80% {top: 2px;} 90% {top: -1px;} 95% {top: 0;} 100% {top: 0;} }
+.jumping-dots span { -webkit-animation-duration: 1750ms; -webkit-animation-iteration-count: infinite; -webkit-animation-name: dot-jump; -moz-animation-duration: 1750ms; -moz-animation-iteration-count: infinite; -moz-animation-name: dot-jump; padding: 0; position: relative; font-weight: 700; }
+.jumping-dots span:nth-child(1) { -webkit-animation-delay: 0ms; -moz-animation-delay: 0ms; }
+.jumping-dots span:nth-child(2) { -webkit-animation-delay: 100ms; -moz-animation-delay: 100ms; }
+.jumping-dots span:nth-child(3) { -webkit-animation-delay: 300ms; -moz-animation-delay: 300ms; }
+.body { font-family: Roboto,arial,sans-serif; font-size: 14px; }
+.container { margin-top: 75px; width: 595px; padding-left: 35px; padding-right: 35px; }
+.ttl { font-size: 18px; line-height: 30px; margin-bottom: 5px; }
+.ttl a:link, .ttl a:visited, .ttl a:hover, .ttl a:active { text-decoration: none; color: #333333; }
+.yl { float: left; margin-right: 2.5px; background: no-repeat url(../images/www-hitchhiker-2x-vflHn56gn.webp )-279px -38px; background-size: 555px 319px; width: 73.5px; height: 30px; }
+.pb { margin: 0 0 15px 0; }
+.ferrors { display: none; }
+.ferrors .alert { margin: 5px 0; }
+.fvideos { display: none; }
+.fsearch { margin: 5px 0; }
+.fsearchbtn { width: 65px; background: #f8f8f8; }
+.fsearchldr { display: none; }
+.video { margin: 7.5px 0; padding: 5px; border: 1px solid #cccccc; border-radius: 4px; background: #f8f8f8; position: relative; }
+.image { float: left; padding: 3px 15px 3px 0; }
+.details { float: left; max-width: 325px; }
+.details>div { margin: 2.5px 0; }
+.download { font-size: 14px; }
+.download:link, .download:visited, .download:hover, .download:active { text-decoration: none; }
+.download[disabled=disabled] { cursor: not-allowed; color: #333333; }
+.download-all { font-size: 14px; cursor: pointer; color: #337ab7; }
+.download-all:hover { color: #23527c; }
+.download-all[disabled=disabled] { cursor: not-allowed; color: #333333; }
+.clear { clear: both; }
+.video-box [type=checkbox] { float: left; margin-left: -25px; }
+.select-all { margin: 15px 0; }
+.video-box .video:hover { background: #efefef; }
