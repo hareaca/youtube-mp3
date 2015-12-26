@@ -1,6 +1,6 @@
 Laravel project for converting youtube videos/playlists to mp3.
 
-For conversion is used ffmpeg(OS X version is currently used).
+For conversion is used ffmpeg(OS X version is currently installed).
 
 For conversion firstly video is downloaded to server, converted and offered to user.
 
