@@ -106,14 +106,14 @@ $(document).ready(function() {
 						blockLINK($(this));
 					});
 					$('.fvideos').find('.download-all').click(function(event) {
-						if($('.fvideos').find('.video-box').not('.select-all').find('[type=checkbox]:checked').length) {
+						if($('.fvideos').find('.video').find('[type=checkbox]:checked').length) {
 							$('.ferrors').hide();
 							$('.ferrors ul').empty();
 							blockLINK($(this));
 
 							var href = $(this).attr('href');
 							var videos = [];
-							$('.fvideos').find('.video-box').not('.select-all').find('[type=checkbox]:checked').each(function() {
+							$('.fvideos').find('.video').find('[type=checkbox]:checked').each(function() {
 								videos.push($(this).attr('name') + '=' + $(this).prop('value'));
 							});
 
@@ -121,26 +121,26 @@ $(document).ready(function() {
 						}
 						else {
 							$('.ferrors').show();
-							$('.ferrors ul').html('<li>You didn\'t select any video.</li>');
+							$('.ferrors ul').html("<li>You didn't select any video.</li>");
 						}
 					});
 					
-					$('.fvideos').find('.select-all [type=checkbox]').click(function(event) {
+					$('.fvideos').find('.video-list-header [type=checkbox]').click(function(event) {
 						if($(this).is(':checked')) {
-							$('.fvideos').find('.video-box').not('.select-all').find('[type=checkbox]').prop('checked', true);
+							$('.fvideos').find('.video').find('[type=checkbox]').prop('checked', true);
 						}
 						else {
-							$('.fvideos').find('.video-box').not('.select-all').find('[type=checkbox]').prop('checked', false);
+							$('.fvideos').find('.video').find('[type=checkbox]').prop('checked', false);
 						}
 					});
 					
-					$('.fvideos').find('.video-box').not('.select-all').find('[type=checkbox]').click(function(event) {
+					$('.fvideos').find('.video').find('[type=checkbox]').click(function(event) {
 						if($(this).is(':checked')) {
-							$('.fvideos').find('.select-all [type=checkbox]').prop('checked', true);
+							$('.fvideos').find('.video-list-header [type=checkbox]').prop('checked', true);
 						}
 						else {
-							if($('.fvideos').find('.video-box').not('.select-all').find('[type=checkbox]:checked').length === 0) {
-								$('.fvideos').find('.select-all [type=checkbox]').prop('checked', false);
+							if($('.fvideos').find('.video').find('[type=checkbox]:checked').length === 0) {
+								$('.fvideos').find('.video-list-header [type=checkbox]').prop('checked', false);
 							}
 						}
 					});
@@ -162,24 +162,6 @@ $(document).ready(function() {
 				$submit.find('i.fsearchldr').hide();
 			}
 		});
-	});
-	
-	$(document).mouseup(function (event) {
-		var $videos = $('.fvideos').find('.video-box').find('.video');
-		if(($videos.is(event.target) === false && $videos.has(event.target).length === 0) === false
-					&& $videos.find('.download').is(event.target) === false && $videos.find('.download').has(event.target).length === 0) {
-			var $checkbox = $(event.target).closest('.video-box').find('[type=checkbox]');
-			$checkbox.prop('checked', !$checkbox.prop('checked'));
-			
-			if($checkbox.is(':checked')) {
-				$('.fvideos').find('.select-all [type=checkbox]').prop('checked', true);
-			}
-			else {
-				if($('.fvideos').find('.video-box').not('.select-all').find('[type=checkbox]:checked').length === 0) {
-					$('.fvideos').find('.select-all [type=checkbox]').prop('checked', false);
-				}
-			}
-		}
 	});
 	
 	$('.fsearch form').submit();

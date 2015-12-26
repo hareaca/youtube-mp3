@@ -94,7 +94,7 @@ class bc extends Controller
 		
 		return (object)$response;
 	}
-	public function getVIDEOLISTINFO($LIST)
+	public function getVIDEOLISTIDS($LIST)
 	{
 		$listINFOURL = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId={$LIST}&key=AIzaSyAafA2Hdbh9KO0yx24UwZBFopeWV_2_Mlg";
 		$ch = curl_init();
@@ -130,7 +130,7 @@ class bc extends Controller
 		if($validator->passes()) {
 			// check for playlist paramenter first
 			if($LIST = $this->getLIST($url)) {
-				$videoLIST = $this->getVIDEOLISTINFO($LIST);
+				$videoLIST = $this->getVIDEOLISTIDS($LIST);
 				
 				if($videoLIST === false) {
 					return ['passes' => false, 'errors' => ['url' => 'The url is invalid.']];

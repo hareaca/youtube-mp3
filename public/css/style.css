@@ -1,3 +1,4 @@
+@import url(/packages/font-awesome/css/font-awesome.min.css);
 @-webkit-keyframes dot-jump { 0% {top: 0;} 55% {top: 0;} 60% {top: -10px;} 80% {top: 2px;} 90% {top: -1px;} 95% {top: 0;} 100% {top: 0;} }
 @-moz-keyframes dot-jump { 0% {top: 0;} 55% {top: 0;} 60% {top: -10px;} 80% {top: 2px;} 90% {top: -1px;} 95% {top: 0;} 100% {top: 0;} }
 .jumping-dots span { -webkit-animation-duration: 1750ms; -webkit-animation-iteration-count: infinite; -webkit-animation-name: dot-jump; -moz-animation-duration: 1750ms; -moz-animation-iteration-count: infinite; -moz-animation-name: dot-jump; padding: 0; position: relative; font-weight: 700; }
@@ -17,16 +18,15 @@
 .fsearchbtn { width: 65px; background: #f8f8f8; }
 .fsearchldr { display: none; }
 .video { margin: 7.5px 0; padding: 5px; border: 1px solid #cccccc; border-radius: 4px; background: #f8f8f8; position: relative; }
+.video:hover { background: #efefef; }
 .image { float: left; padding: 3px 15px 3px 0; }
 .details { float: left; max-width: 325px; }
 .details>div { margin: 2.5px 0; }
 .download { font-size: 14px; }
 .download:link, .download:visited, .download:hover, .download:active { text-decoration: none; }
-.download[disabled=disabled] { cursor: not-allowed; color: #333333; }
-.download-all { font-size: 14px; cursor: pointer; color: #337ab7; }
-.download-all:hover { color: #23527c; }
-.download-all[disabled=disabled] { cursor: not-allowed; color: #333333; }
 .clear { clear: both; }
-.video-box [type=checkbox] { float: left; margin-left: -25px; }
-.select-all { margin: 15px 0; }
-.video-box .video:hover { background: #efefef; }
+.video-list-header { margin: 15px 0; }
+.fa-download { color: #337ab7; }
+input[type=checkbox] {position: relative; }
+label>input[type=checkbox]:before { position: absolute; background-color: #FFFFFF; height: 100%; width: 100%; font-family: FontAwesome; display: inline-block; content:"\f096"; letter-spacing: 10px; }
+label>input[type=checkbox]:checked:before { font-family: FontAwesome; display: inline-block; content:"\f046"; letter-spacing: 5px; }
