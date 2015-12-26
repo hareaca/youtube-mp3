@@ -11,7 +11,7 @@ function expireCOOKIE(name) {
 		data: {name: name}
 	});
 }
-function blockLINK($link, extra) {
+function blockLINK($link, extra, oncomplete) {
 	var $dialog = bootbox.dialog({ closeButton: false, message:
 		'<div class="step">COLLECTING INFORMATION <span class="jumping-dots"><span>.</span><span>.</span><span>.</span></span></div>'
 		+'<div class="progress" style="display: none;">'
@@ -21,24 +21,25 @@ function blockLINK($link, extra) {
 	var t = $link.attr('t'),
 	tv = $link.attr('tv');
 
-	try {
-		extra($link, $dialog, false);
-	} catch(e) { /* extra function can't be executed */ }
+	getPROGRESS($link, $dialog);
 
 	var timer = 0;
+	var finished = false;
 	timers[t] = window.setInterval(function() {
 		var token = getCOOKIE(t);
 		
 		if(token === tv) {
 			unblockLINK($link, $dialog);
+			
+			finished = true;
+			setPROGRESS($dialog, 100);
 		}
 		
-		try {
-			if(timer > 2500) {
-				timer -= 2500;
-				extra($link, $dialog);
-			}
-		} catch(e) { /* extra function can't be executed */ }
+		// get progress every 2.5s
+		if(finished === false && timer > 2500) {
+			timer -= 2500;
+			getPROGRESS($link, $dialog);
+		}
 		
 		timer += 1000;
 	}, 1000);
@@ -51,6 +52,24 @@ function unblockLINK($link, $dialog) {
 		expireCOOKIE(t);
 		setTimeout(function() {window.clearInterval(timers[t]);}, 2500);
 	} catch(e) { /* failed to clear timer */ }
+}
+function setPROGRESS($dialog, progress) {
+	$dialog.find('.step').html('PROCESSING');
+	$dialog.find('.progress').show();
+	$dialog.find('.progress').find('.progress-bar').attr('aria-valuenow', progress);
+	$dialog.find('.progress').find('.progress-bar').css({width: progress + '%'});
+	$dialog.find('.progress').find('.progress-bar').html(progress + '%');
+}
+function getPROGRESS($link, $dialog) {
+	$.ajax({
+		url: $link.attr('progress-url'),
+		method: 'GET',
+		success: function(progress) {
+			if(progress) {
+				setPROGRESS($dialog, progress);
+			}
+		}
+	});
 }
 	
 $(document).ready(function() {
@@ -84,41 +103,13 @@ $(document).ready(function() {
 					});
 					
 					$('.fvideos').find('.download').click(function(event) {
-						blockLINK($(this), function($link, $dialog) {
-								$.ajax({
-									url: $link.attr('progress-url'),
-									method: 'GET',
-									success: function(progress) {
-										if(progress) {
-											$dialog.find('.step').html('PROCESSING');
-											$dialog.find('.progress').show();
-											$dialog.find('.progress').find('.progress-bar').attr('aria-valuenow', progress);
-											$dialog.find('.progress').find('.progress-bar').css({width: progress + '%'});
-											$dialog.find('.progress').find('.progress-bar').html(progress + '%');
-										}
-									}
-								});
-							});
+						blockLINK($(this));
 					});
 					$('.fvideos').find('.download-all').click(function(event) {
 						if($('.fvideos').find('.video-box').not('.select-all').find('[type=checkbox]:checked').length) {
 							$('.ferrors').hide();
 							$('.ferrors ul').empty();
-							blockLINK($(this), function($link, $dialog) {
-								$.ajax({
-									url: $link.attr('progress-url'),
-									method: 'GET',
-									success: function(progress) {
-										if(progress) {
-											$dialog.find('.step').html('PROCESSING');
-											$dialog.find('.progress').show();
-											$dialog.find('.progress').find('.progress-bar').attr('aria-valuenow', progress);
-											$dialog.find('.progress').find('.progress-bar').css({width: progress + '%'});
-											$dialog.find('.progress').find('.progress-bar').html(progress + '%');
-										}
-									}
-								});
-							});
+							blockLINK($(this));
 
 							var href = $(this).attr('href');
 							var videos = [];
