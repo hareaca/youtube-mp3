@@ -27,6 +27,6 @@
 .clear { clear: both; }
 .video-list-header { margin: 15px 0; }
 .fa-download { color: #337ab7; }
-input[type=checkbox] {position: relative; }
-label>input[type=checkbox]:before { position: absolute; background-color: #FFFFFF; height: 100%; width: 100%; font-family: FontAwesome; display: inline-block; content:"\f096"; letter-spacing: 10px; }
-label>input[type=checkbox]:checked:before { font-family: FontAwesome; display: inline-block; content:"\f046"; letter-spacing: 5px; }
+input[type=checkbox] { display:none; }
+input[type=checkbox] + span:before { font-family: FontAwesome; display: inline-block; content: "\f096"; letter-spacing: 10px; width: 20px; }
+input[type=checkbox]:checked + span:before { content: "\f046"; letter-spacing: 5px; position:relative; left: -1px; }

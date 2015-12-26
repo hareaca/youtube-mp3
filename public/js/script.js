@@ -125,8 +125,11 @@ $(document).ready(function() {
 						}
 					});
 					
-					$('.fvideos').find('.video-list-header [type=checkbox]').click(function(event) {
-						if($(this).is(':checked')) {
+					$('.fvideos').find('.video-list-header span[data-target=checkbox]').click(function(event) {
+						var $checkbox = $('#' + $(this).attr('for'));
+						$checkbox.prop('checked', !$checkbox.prop('checked'));
+						
+						if($checkbox.is(':checked')) {
 							$('.fvideos').find('.video').find('[type=checkbox]').prop('checked', true);
 						}
 						else {
@@ -134,12 +137,15 @@ $(document).ready(function() {
 						}
 					});
 					
-					$('.fvideos').find('.video').find('[type=checkbox]').click(function(event) {
-						if($(this).is(':checked')) {
+					$('.fvideos').find('.video span[data-target=checkbox]').click(function(event) {
+						var $checkbox = $('#' + $(this).attr('for'));
+						$checkbox.prop('checked', !$checkbox.prop('checked'));
+						
+						if($checkbox.is(':checked')) {
 							$('.fvideos').find('.video-list-header [type=checkbox]').prop('checked', true);
 						}
 						else {
-							if($('.fvideos').find('.video').find('[type=checkbox]:checked').length === 0) {
+							if($('.fvideos').find('.video [type=checkbox]:checked').length === 0) {
 								$('.fvideos').find('.video-list-header [type=checkbox]').prop('checked', false);
 							}
 						}

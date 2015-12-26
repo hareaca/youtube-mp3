@@ -6,7 +6,10 @@
 			$__tv_ = '__tv_'.substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), 0, 15);
 			$__i_ = '__i_'.substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), 0, 15);
 		?>
-		<label class="btn btn-default">{!! Form::checkbox(null, null, true) !!} select all</label>
+		<span class="btn btn-default" data-target="checkbox" for="select-all">
+			{!! Form::checkbox(null, null, true, ['id' => 'select-all']) !!}
+			<span>select all</span>
+		</span>
 		<span href="{!! route('downloadlist', ['t' => $__t_, 'tv' => $__tv_, 'i' => $__i_]) !!}" separator="&" class="btn btn-default download-all" downloading-html="downloading<span class='pprogress'></span> <span class='jumping-dots'><span>.</span><span>.</span><span>.</span></span>"
 			 t="{!! $__t_ !!}"
 			 tv="{!! $__tv_ !!}"

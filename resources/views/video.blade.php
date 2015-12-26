@@ -11,10 +11,10 @@
 				$__i_ = '__i_'.substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), 0, 15);
 			?>
 			@if(isset($list) && $list)
-			<label class="btn btn-default">
-			{!! Form::checkbox('__v_[]', $URLID, true) !!}
-			select
-			</label>
+			<span class="btn btn-default" data-target="checkbox" for="{!! '__v_'.$URLID !!}">
+				{!! Form::checkbox('__v_[]', $URLID, true, ['id' => "__v_{$URLID}"]) !!}
+				<span>select</span>
+			</span>
 			@endif
 			<a href="{!! route('download', [$URLID, 't' => $__t_, 'tv' => $__tv_, 'i' => $__i_]) !!}" class="btn btn-default download" downloading-html="<i class='fa fa-save'></i> downloading <span class='jumping-dots'><span>.</span><span>.</span><span>.</span></span>"
 				 t="{!! $__t_ !!}"
