@@ -12,11 +12,11 @@ function expireCOOKIE(name) {
 	});
 }
 function blockLINK($link, extra) {
-	$link.data('html', $link.html());
-	$link.html($link.attr('downloading-html'));
-	$link.attr('disabled', true);
-	
-	var $dialog = bootbox.dialog({ closeButton: false, message: 'DOWNLOADING<span class="pprogress"></span> <span class="jumping-dots"><span>.</span><span>.</span><span>.</span></span>' });
+	var $dialog = bootbox.dialog({ closeButton: false, message:
+		'<div class="step">COLLECTING INFORMATION <span class="jumping-dots"><span>.</span><span>.</span><span>.</span></span></div>'
+		+'<div class="progress" style="display: none;">'
+				+'<div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em;">0%</div>'
+		+'</div>'});
 	
 	var t = $link.attr('t'),
 	tv = $link.attr('tv');
@@ -34,8 +34,8 @@ function blockLINK($link, extra) {
 		}
 		
 		try {
-			if(timer > 3500) {
-				timer -= 3500;
+			if(timer > 2500) {
+				timer -= 2500;
 				extra($link, $dialog);
 			}
 		} catch(e) { /* extra function can't be executed */ }
@@ -45,11 +45,6 @@ function blockLINK($link, extra) {
 }
 function unblockLINK($link, $dialog) {
 	var t = $link.attr('t');
-	
-	$link.attr('disabled', false);
-	$link.html($link.data('html'));
-	$link.data('html', null);
-	
 	$dialog.modal('hide');
 	
 	try {
@@ -89,7 +84,21 @@ $(document).ready(function() {
 					});
 					
 					$('.fvideos').find('.download').click(function(event) {
-						blockLINK($(this));
+						blockLINK($(this), function($link, $dialog) {
+								$.ajax({
+									url: $link.attr('progress-url'),
+									method: 'GET',
+									success: function(progress) {
+										if(progress) {
+											$dialog.find('.step').html('PROCESSING');
+											$dialog.find('.progress').show();
+											$dialog.find('.progress').find('.progress-bar').attr('aria-valuenow', progress);
+											$dialog.find('.progress').find('.progress-bar').css({width: progress + '%'});
+											$dialog.find('.progress').find('.progress-bar').html(progress + '%');
+										}
+									}
+								});
+							});
 					});
 					$('.fvideos').find('.download-all').click(function(event) {
 						if($('.fvideos').find('.video-box').not('.select-all').find('[type=checkbox]:checked').length) {
@@ -101,8 +110,11 @@ $(document).ready(function() {
 									method: 'GET',
 									success: function(progress) {
 										if(progress) {
-											$dialog.find('.pprogress').html('(' + progress + ')');
-											$link.find('.pprogress').html('(' + progress + ')');
+											$dialog.find('.step').html('PROCESSING');
+											$dialog.find('.progress').show();
+											$dialog.find('.progress').find('.progress-bar').attr('aria-valuenow', progress);
+											$dialog.find('.progress').find('.progress-bar').css({width: progress + '%'});
+											$dialog.find('.progress').find('.progress-bar').html(progress + '%');
 										}
 									}
 								});

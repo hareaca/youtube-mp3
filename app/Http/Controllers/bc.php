@@ -184,12 +184,12 @@ class bc extends Controller
 		
 		return $filename;
 	}
-	public function downloadFILE($url)
+	public function downloadFILE($url, $videoFILENAME = null)
 	{
 		try {
 			set_time_limit(0);
 			
-			$file = "{$this->storagePATH()}{$this->generateRandomFILENAME($this->storagePATH(), null, 8)}";
+			$file = $videoFILENAME ?: "{$this->storagePATH()}{$this->generateRandomFILENAME($this->storagePATH(), null, 8)}";
 			$ch = curl_init();
 			curl_setopt_array($ch, [
 				CURLOPT_FILE		=> $fp = fopen($file, 'w'),
@@ -201,7 +201,7 @@ class bc extends Controller
 			fclose($fp);
 			
 			if(File::exists($file)) {
-				$this->TEMPFILES[] =  $file;
+				$this->TEMPFILES[] = $file;
 				return $file;
 			}
 		}
@@ -224,9 +224,9 @@ class bc extends Controller
 		
 		return false;
 	}
-	public function mp3CONVERT($videoFILE)
+	public function mp3CONVERT($videoFILE, $mp3FILENAME = null)
 	{
-		$mp3FILE = "{$this->storagePATH()}{$this->generateRandomFILENAME($this->storagePATH(), 'mp3', 8)}";
+		$mp3FILE = $mp3FILENAME ?: "{$this->storagePATH()}{$this->generateRandomFILENAME($this->storagePATH(), 'mp3', 8)}";
 		exec('"'.base_path('ffmpeg/ffmpeg').'" -i "'.$videoFILE.'" -b:a 192K -vn "'.$mp3FILE.'"');
 		
 		return $mp3FILE;
@@ -239,6 +239,66 @@ class bc extends Controller
 	{
     setcookie($request->get('name'), null, time() - 3600 /* expired 1 hour ago */, '/', $_SERVER['HTTP_HOST'], false, false);
   }
+	public function sanitize($string, $replaceSPACES = false, $forceLOWERCASE = false, $removeNONALPHANUMERIC = false) {
+    $strip = ['~', '`', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '=', '+', '[', '{', ']',
+							'}', '\\', '|', ';', ':', '"', '\'', '&#8216;', '&#8217;', '&#8220;', '&#8221;', '&#8211;', '&#8212;',
+							'â€”', 'â€“', ',', '<', '.', '>', '/', '?'];
+    $clean = trim(str_replace($strip, null, strip_tags($string)));
+    $clean = ($replaceSPACES) ? preg_replace('/\s+/', '-', $clean) : $clean;
+    $clean = ($removeNONALPHANUMERIC) ? preg_replace('/[^a-zA-Z0-9]/', null, $clean) : $clean ;
+    return ($forceLOWERCASE) ? (function_exists('mb_strtolower')) ? mb_strtolower($clean, 'UTF-8') : strtolower($clean) : $clean;
+	}
+	public function calculatePROGRESS($totalSIZE, $currentSIZE)
+	{
+		if($currentSIZE > $totalSIZE) {
+			return 100;
+		}
+		
+		if($totalSIZE === 0) {
+			return 0;
+		}
+		else {
+			return (int)($currentSIZE * 100 / $totalSIZE);
+		}
+	}
+	public function getFILESIZE($url)
+	{
+		// assume failure
+		$result = -1;
+
+		try {
+			$ch = curl_init($url);
+
+			// issue a HEAD request and follow any redirects.
+			curl_setopt($ch, CURLOPT_NOBODY, true);
+			curl_setopt($ch, CURLOPT_HEADER, true);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+
+			$details = curl_exec($ch);
+			curl_close($ch);
+
+			if($details) {
+				$contentLENGTH = 'unknown';
+				$status = 'unknown';
+
+				if(preg_match('/^HTTP\/1\.[01] (\d\d\d)/', $details, $matches)) {
+					$status = (int)$matches[1];
+				}
+
+				if(preg_match('/Content-Length: (\d+)/', $details, $matches)) {
+					$contentLENGTH = (int)$matches[1];
+				}
+
+				if($status === 200 || ($status > 300 && $status <= 308)) {
+					$result = $contentLENGTH;
+				}
+			}
+		}
+		catch(\Exception $e) { /* failed to take file details */ }
+
+		return $result;
+	}
 	public function download($videoID, Request $request)
 	{
 		if($videoINFO = $this->getVIDEOINFO($videoID)) {
@@ -247,13 +307,32 @@ class bc extends Controller
 			}
 			
 			if($videURL = $this->getVIDEOURL($videoINFO)) {
-				if($videoFILE = $this->downloadFILE($videURL)) {
+				// determine video length
+				$videoLENGTH = (int)$videoINFO->length_seconds;
+				
+				$videoFILENAME = "{$this->storagePATH()}{$this->generateRandomFILENAME($this->storagePATH(), null, 8)}";
+				$mp3FILENAME = "{$this->storagePATH()}{$this->generateRandomFILENAME($this->storagePATH(), 'mp3', 8)}";
+				
+				// collect progress information
+				$progressINFO = (object)[
+					'multiple' => false,
+					'videoSIZE' => $this->getFILESIZE($videURL),
+					'videoLENGTH' => $videoLENGTH,
+					'videoFILE' => $videoFILENAME,
+					'mp3FILE' => $mp3FILENAME
+				];
+				
+				$progressFILE = "{$this->storagePATH()}{$request->get('i')}";
+				$this->TEMPFILES[] = $progressFILE;
+				File::put($progressFILE, json_encode($progressINFO));
+				
+				if($videoFILE = $this->downloadFILE($videURL, $videoFILENAME)) {
 					try {
-						$mp3FILE = $this->mp3CONVERT($videoFILE);
+						$mp3FILE = $this->mp3CONVERT($videoFILE, $mp3FILENAME);
 						
 						// set up cookie to announce js that download started
 						$this->setTOKEN($request->get('t'), $request->get('tv'), false);
-						return response()->download($mp3FILE, "{$videoINFO->title}.mp3")->deleteFileAfterSend(true);
+						return response()->download($mp3FILE, "{$this->sanitize($videoINFO->title)}.mp3")->deleteFileAfterSend(true);
 					}
 					catch(\Exception $e) { /* failed to convert video to mp3 */ }
 				}
@@ -265,65 +344,122 @@ class bc extends Controller
 	public function downloadlist(Request $request)
 	{
 		if($videos = $request->get('__v_')) {
-			$videosCOUNT = count($videos);
-			$mp3FILEARRAY = [];
-			
-			$i = 0;
-			// put download progress inside temporary file
-			$progressFILE = "{$this->storagePATH()}{$request->get('i')}";
-			$this->TEMPFILES[] = $progressFILE;
-			File::put($progressFILE, "{$i}/{$videosCOUNT}");
+			$videosSIZE = 0;
+			$videosLENGTH = 0;
+			$videoINFOARRAY = [];
 			
 			foreach($videos as $videoID) {
 				if($videoINFO = $this->getVIDEOINFO($videoID)) {
 					if(($videoINFO === false || isset($videoINFO->status) === false || strtolower($videoINFO->status) === 'fail') === false) {
 						if($videURL = $this->getVIDEOURL($videoINFO)) {
-							if($videoFILE = $this->downloadFILE($videURL)) {
-								try {
-									$mp3FILE = $this->mp3CONVERT($videoFILE);
-									$mp3FILEARRAY[] = (object)['title' => $videoINFO->title, 'file' => $mp3FILE];
-								}
-								catch(\Exception $e) { /* failed to convert video to mp3 */ }
-								
-								$i++;
-								File::put($progressFILE, "{$i}/{$videosCOUNT}");
-							}
+							$videosLENGTH += (int)$videoINFO->length_seconds;
+							$videosSIZE += $this->getFILESIZE($videURL);
+							$videoINFOARRAY[] = (object)[
+								'videoURL' => $videURL,
+								'title' => $videoINFO->title
+							];
 						}
 					}
 				}
 			}
 			
-			if(count($mp3FILEARRAY)) {
-				// create an directory and move all mp3 files inside, renamed with video title
-				$archiveDIRECTORY = "{$this->storagePATH()}{$this->generateRandomFILENAME($this->storagePATH(), null, 8)}";
-				mkdir($archiveDIRECTORY, 0777, true);
-				$this->TEMPFOLDERS[] = $archiveDIRECTORY;
-				
-				foreach($mp3FILEARRAY as $mp3FILE) {
+			// create an directory for playlist
+			$archiveDIRECTORY = "{$this->storagePATH()}{$this->generateRandomFILENAME($this->storagePATH(), null, 8)}";
+			mkdir($archiveDIRECTORY, 0777, true);
+			$this->TEMPFOLDERS[] = $archiveDIRECTORY;
+			
+			// collect progress information
+			$progressINFO = (object)[
+				'multiple' => true,
+				'videosSIZE' => $videosSIZE,
+				'videosLENGTH' => $videosLENGTH,
+				'videosDIR' => $archiveDIRECTORY
+			];
+			
+			$progressFILE = "{$this->storagePATH()}{$request->get('i')}";
+			$this->TEMPFILES[] = $progressFILE;
+			File::put($progressFILE, json_encode($progressINFO));
+			
+			foreach($videoINFOARRAY as $videoINFO) {
+				$videoFILENAME = "{$archiveDIRECTORY}/{$this->generateRandomFILENAME($archiveDIRECTORY, null, 8)}";
+				$mp3FILETITTLE = $this->sanitize($videoINFO->title);
+				$mp3FILENAME = "{$archiveDIRECTORY}/{$mp3FILETITTLE}.mp3";
+				if($videoFILE = $this->downloadFILE($videoINFO->videoURL, $videoFILENAME)) {
 					try {
-						$this->TEMPFILES[] = "{$archiveDIRECTORY}/{$mp3FILE->title}.mp3";
-						rename($mp3FILE->file, "{$archiveDIRECTORY}/{$mp3FILE->title}.mp3");
+						$mp3FILE = $this->mp3CONVERT($videoFILE, $mp3FILENAME);
+						$this->TEMPFILES[] = $mp3FILENAME;
 					}
-					catch(\Exception $e) { /* mp3 file misses */ }
+					catch(\Exception $e) { /* failed to convert video to mp3 */ }
 				}
-				
-				// archive mp3 files
-				$archive = "{$this->storagePATH()}{$this->generateRandomFILENAME($this->storagePATH(), 'zip', 8)}";
-				\Zipper::make($archive)->add(glob("{$archiveDIRECTORY}/*"))->close();
-				
-				// set up cookie to announce js that download started
-				$this->setTOKEN($request->get('t'), $request->get('tv'), false);
-				return response()->download($archive)->deleteFileAfterSend(true);
 			}
+			
+			// archive mp3 files
+			$archive = "{$this->storagePATH()}{$this->generateRandomFILENAME($this->storagePATH(), 'zip', 8)}";
+			\Zipper::make($archive)->add(glob("{$archiveDIRECTORY}/*.mp3"))->close();
+
+			// set up cookie to announce js that download started
+			$this->setTOKEN($request->get('t'), $request->get('tv'), false);
+			return response()->download($archive)->deleteFileAfterSend(true);
 		}
 		
 		return 'Whoops! An error occurred.';
 	}
+	public function getMP3SIZE($videoLENGTH)
+	{
+		// 1s to mp3 is around 24000 bytes
+		return $videoLENGTH * 23500;
+	}
+	public function getDIRSIZE($DIR)
+	{
+		$size = 0;
+
+		if(is_dir($DIR)) {
+			$files = glob("{$DIR}/*");
+			foreach($files as $path){
+				if(is_dir($path)) {
+					$size += $this->getDIRSIZE($path);
+				}
+				else {
+					$size += File::size($path);
+				}
+			}
+		}
+
+		return $size;
+	}
 	public function getPROGRESS($filename)
 	{
 		// take download progress from temporary file
-		if(File::exists("{$this->storagePATH()}{$filename}")) {
-			return File::get("{$this->storagePATH()}{$filename}");
+		$progressFILE = "{$this->storagePATH()}{$filename}";
+		if(File::exists($progressFILE)) {
+			try {
+				$progressINFO = json_decode(File::get($progressFILE));
+				if($progressINFO->multiple) {
+					$totalSIZE = $progressINFO->videosSIZE + $this->getMP3SIZE($progressINFO->videosLENGTH);
+					$currentSIZE = 0;
+					
+					if(is_dir($progressINFO->videosDIR)) {
+						$currentSIZE += $this->getDIRSIZE($progressINFO->videosDIR);
+					}
+
+					return $this->calculatePROGRESS($totalSIZE, $currentSIZE);
+				}
+				else {
+					$totalSIZE = $progressINFO->videoSIZE + $this->getMP3SIZE($progressINFO->videoLENGTH);
+					$currentSIZE = 0;
+
+					if(File::exists($progressINFO->videoFILE)) {
+						$currentSIZE += File::size($progressINFO->videoFILE);
+					}
+
+					if(File::exists($progressINFO->mp3FILE)) {
+						$currentSIZE += File::size($progressINFO->mp3FILE);
+					}
+
+					return $this->calculatePROGRESS($totalSIZE, $currentSIZE);
+				}
+			}
+			catch(\Exception $e) { /* failed decode progress file */ }
 		}
 		
 		return null;
