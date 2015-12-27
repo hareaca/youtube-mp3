@@ -17,8 +17,9 @@
 			<i class="fa fa-download"></i> download all selected
 		</span>
 	</div>
+<?php $i = 0; ?>
 @foreach($videoLISTARRAY as $URLID => $videoINFO)
-	@include('video', ['URLID' => $URLID, 'videoINFO' => $videoINFO, 'list' => true])
+	@include('video', ['URLID' => $URLID, 'videoINFO' => $videoINFO, 'list' => true, 'i' => ++$i])
 @endforeach
 </div>
 @else
