@@ -29,10 +29,10 @@ function blockLINK($link, extra, oncomplete) {
 		var token = getCOOKIE(t);
 		
 		if(token === tv) {
-			unblockLINK($link, $dialog);
-			
 			finished = true;
 			setPROGRESS($dialog, 100);
+			
+			setTimeout(function() { unblockLINK($link, $dialog); }, 2500);
 		}
 		
 		// get progress every 2.5s
@@ -50,7 +50,7 @@ function unblockLINK($link, $dialog) {
 	
 	try {
 		expireCOOKIE(t);
-		setTimeout(function() {window.clearInterval(timers[t]);}, 2500);
+		window.clearInterval(timers[t]);
 	} catch(e) { /* failed to clear timer */ }
 }
 function setPROGRESS($dialog, progress) {
