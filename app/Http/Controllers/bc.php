@@ -193,7 +193,7 @@ class bc extends Controller
 			$ch = curl_init();
 			curl_setopt_array($ch, [
 				CURLOPT_FILE		=> $fp = fopen($file, 'w'),
-				CURLOPT_TIMEOUT	=> 30000,
+				CURLOPT_TIMEOUT	=> 0,
 				CURLOPT_URL			=> $url,
 			]);
 			curl_exec($ch);
