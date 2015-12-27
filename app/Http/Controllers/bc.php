@@ -96,7 +96,7 @@ class bc extends Controller
 	}
 	public function getVIDEOLISTIDS($LIST)
 	{
-		$listINFOURL = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId={$LIST}&key=AIzaSyAafA2Hdbh9KO0yx24UwZBFopeWV_2_Mlg";
+		$listINFOURL = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId={$LIST}&key=".\Config::get('youtube.project_key');
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $listINFOURL);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); 
