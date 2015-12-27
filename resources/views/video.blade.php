@@ -3,7 +3,10 @@
 		<img src="http://i1.ytimg.com/vi/{!! $URLID !!}/default.jpg">
 	</div>
 	<div class="details">
-		<div><?php if(isset($i)) { ?><b>{!! $i !!}</b> <?php } ?>{!! $videoINFO->title !!}</div>
+		<div>
+			<?php if(isset($i)) { ?><b>{!! $i !!}.</b><?php } ?>
+			{!! $videoINFO->title !!}
+		</div>
 		<div>
 			<?php
 				$__t_ = '__t_'.substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), 0, 15);
