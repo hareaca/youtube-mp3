@@ -303,7 +303,7 @@ class bc extends Controller
 	{
 		if($videoINFO = $this->getVIDEOINFO($videoID)) {
 			if($videoINFO === false || isset($videoINFO->status) === false || strtolower($videoINFO->status) === 'fail') {
-				return 'Whoops! An error occurred.';
+				return 'Whoops! An error occurreda.';
 			}
 			
 			if($videURL = $this->getVIDEOURL($videoINFO)) {

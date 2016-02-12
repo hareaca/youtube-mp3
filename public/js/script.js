@@ -84,7 +84,7 @@ $(document).ready(function() {
 		// start loading
 		$submit.prop('disabled', true);
 		$submit.find('i').hide();
-		$submit.find('i.fsearchldr').show();
+		$submit.find('i.fsearchldr').css({display: 'inline-block'});
 		
 		$.ajax({
 			url: $form.attr('action'),
